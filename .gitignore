@@ -1,0 +1,3 @@
+nano .gitignore
+datasets/
+cv_venv/
