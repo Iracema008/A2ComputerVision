@@ -19,13 +19,29 @@ NUM_EPOCHS = 10
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
+        # 1 input channels gray, 32 output channels, 3 kernel size
+        self.conv1 = nn.Conv2d(1, 32, 3)
+        self.conv2 = nn.Conv2d(32, 64, 3)
+        self.pool = nn.MaxPool2d(2,2)
+
+        # connected layer conpressed to neurons
+        self.fc1 = nn.Linear(1600, 128)
+        self.fc2 = nn.Linear(128, 10)
         # TODO: Make your convolutional, pooling, flattening, and fully connected layers here
-    
+
     def forward(self, x):
+        # math funciton applied to convul image
+        # pooling to reduce map
         x = self.pool(F.relu(self.conv1(x)))
-        x = x.view(-1, 1440)
+        x = self.pool(F.relu(self.conv2(x)))
+
+        # "reform" shape, all we know is second dim is 1440
+        # bridges convolutions to fully connect
+        x = x.view(-1, 1600)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+
+        # softmax to get probability distribution
         return F.log_softmax(x, dim=1)
 
 # Data transformation
@@ -78,4 +94,4 @@ with torch.no_grad(): # disabling gradient tracking
 print(f"Test Accuracy: {correct / total * 100:.2f}%")
 
 # Save the model parameters that can be loaded later
-# torch.save(model.state_dict(), "my_cnn.ph")
+torch.save(model.state_dict(), "my_cnn.ph")
